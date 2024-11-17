@@ -1,3 +1,4 @@
+import { types } from "joi";
 import mongoose from "mongoose";
 import mongoosePaginate from "mongoose-paginate-v2";
 
@@ -6,47 +7,36 @@ const productSchema = new mongoose.Schema(
         name: {
             type: String,
             required: true,
-            lowercase: true,
         },
-        slug: {
-            type: String,
-            unique: true,
-        },
+        // slug: {
+        //     type: String,
+        //     unique: true,
+        // },
         category: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Category",
             required: true,
         },
-        price: {
+        sale: {
             type: Number,
-            required: true,
-            default: 0,
         },
         image: {
+            type: Object,
+        },
+        imagemain: {
+            type: Object,
+        },
+        tags: [
+            { type: String }
+        ],
+        desc: {
             type: String,
         },
-        gallery: {
-            type: Array,
-        },
-        description: {
-            type: String,
-        },
-        discount: {
-            type: Number,
-            default: 0,
-        },
-        countInStock: {
-            type: Number,
-            default: 0,
-        },
-        featured: {
+        checked: {
             type: Boolean,
             default: false,
         },
-        tags: {
-            type: Array,
-        },
-        attributes: [
+        attribute: [
             {
                 type: mongoose.Schema.Types.ObjectId,
                 ref: "Attribute",

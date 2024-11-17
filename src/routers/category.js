@@ -6,11 +6,12 @@ import {
     getCategoryById,
     updateCategoryById,
 } from "../controllers/category";
+import { checkAuth } from "../middleware/checkAuth";
 
 const router = Router();
-router.get("/categories", getAll);
-router.get("/categories/:id", getCategoryById);
-router.delete("/categories/:id", deleteCategoryById);
-router.put("/categories/:id", updateCategoryById);
-router.post("/categories", create);
+router.get("/category", getAll);
+router.get("/category/:id", getCategoryById);
+router.delete("/category/:id", deleteCategoryById);
+router.put("/category/:id", checkAuth, updateCategoryById);
+router.post("/category", create);
 export default router;

@@ -5,26 +5,27 @@ import {
     deleteAttribute,
     getAllAttributes,
     getAttributeById,
+    getAttributeByIdPro,
     updateAttribute,
 } from "../controllers/attribute";
 
 const router = Router();
 // Route để tạo mới một thuộc tính
-router.post("/attributes", createAttribute);
-
-// Route để thêm giá trị cho thuộc tính đã tồn tại
-router.post("/attributes/:id/values", createValueAttribute);
+router.post("/attribute", createAttribute);
 
 // Route để lấy tất cả các thuộc tính
-router.get("/attributes", getAllAttributes);
+router.get("/attribute", getAllAttributes);
 
 // Route để lấy một thuộc tính theo ID
-router.get("/attributes/:id", getAttributeById);
+router.get("/attribute/:id", getAttributeById);
+
+// Route để lấy một thuộc tính theo ID Product
+router.get("/attributes/:id", getAttributeByIdPro);
 
 // Route để cập nhật một thuộc tính theo ID
-router.put("/attributes/:id", updateAttribute);
+router.put("/attribute/:id", updateAttribute);
 
 // Route để xóa một thuộc tính theo ID
-router.delete("/attributes/:id", deleteAttribute);
+router.delete("/attribute/:id", deleteAttribute);
 
 export default router;

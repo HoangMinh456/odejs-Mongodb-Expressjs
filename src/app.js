@@ -9,6 +9,11 @@ import productRouter from "./routers/product";
 import categoryRouter from "./routers/category";
 import cartRouter from "./routers/cart";
 import orderRouter from "./routers/order";
+import sizeRouter from "./routers/size";
+import attributeRouter from "./routers/attribute";
+import routerTags from "./routers/tags";
+import { checkAuth } from "./middleware/checkAuth";
+
 const app = express();
 dotenv.config();
 // middleware
@@ -25,5 +30,8 @@ app.use("/api", productRouter);
 app.use("/api", categoryRouter);
 app.use("/api", cartRouter);
 app.use("/api", orderRouter);
+app.use("/api", sizeRouter);
+app.use("/api", attributeRouter);
+app.use("/api", routerTags);
 
 export const viteNodeApp = app;

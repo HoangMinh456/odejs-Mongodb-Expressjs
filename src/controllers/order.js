@@ -3,8 +3,7 @@ import { StatusCodes } from "http-status-codes";
 
 export const createOrder = async (req, res) => {
     try {
-        const { userId, items, totalPrice, customerInfo } = req.body;
-        const order = await Order.create({ userId, items, totalPrice, customerInfo });
+        const order = await Order.create(req.body);
         return res.status(StatusCodes.CREATED).json(order);
     } catch (error) {
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
@@ -23,8 +22,8 @@ export const getOrders = async (req, res) => {
 };
 export const getOrderById = async (req, res) => {
     try {
-        const { userId, orderId } = req.params;
-        const order = await Order.findOne({ userId, _id: orderId });
+        const { orderId } = req.params;
+        const order = await Order.findOne({ _id: orderId });
         if (!order) {
             return res.status(StatusCodes.NOT_FOUND).json({ error: "Order not found" });
         }
@@ -49,21 +48,20 @@ export const updateOrder = async (req, res) => {
 };
 export const updateOrderStatus = async (req, res) => {
     try {
-        const { orderId } = req.params;
-        const { status } = req.body;
+        const { idOrder, status } = req.body;
 
-        const validStatus = ["pending", "confirmed", "shipped", "delivered", "cancelled"];
+        const validStatus = ["Hủy", "Chờ xác nhận", "Đóng gói", "Đang giao", "Hoàn thành"];
 
         if (!validStatus.includes(status)) {
             return res.status(StatusCodes.BAD_REQUEST).json({ error: "Invalid status" });
         }
 
-        const order = await Order.findOne({ _id: orderId });
+        const order = await Order.findOne({ _id: idOrder });
         if (!order) {
             return res.status(StatusCodes.NOT_FOUND).json({ error: "Order not found" });
         }
 
-        if (order.status === "delivered" || order.status === "cancelled") {
+        if (order.status === "Hoàn thành" || order.status === "Hủy") {
             return res.status(StatusCodes.BAD_REQUEST).json({ error: "Order cannot be updated" });
         }
 

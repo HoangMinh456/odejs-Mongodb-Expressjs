@@ -1,36 +1,40 @@
 import mongoose, { Schema } from "mongoose";
-const ValueAttributeSchema = new Schema(
-    {
-        name: {
-            type: String,
-            required: true,
-        },
-        price: {
-            type: Number,
-            required: true,
-        },
-        quantity: {
-            type: Number,
-            required: true,
-        },
-    },
-    { timestamps: false, versionKey: false }
-);
-export const ValueAttributeModel = mongoose.model("ValueAttribute", ValueAttributeSchema);
+// const ValueAttributeSchema = new Schema(
+//     {
+//         name: {
+//             type: String,
+//             required: true,
+//         },
+//         price: {
+//             type: Number,
+//             required: true,
+//         },
+//         quantity: {
+//             type: Number,
+//             required: true,
+//         },
+//     },
+//     { timestamps: false, versionKey: false }
+// );
+// export const ValueAttributeModel = mongoose.model("ValueAttribute", ValueAttributeSchema);
 
 const AttributeSchema = new Schema(
     {
-        name: {
+        color: {
+            type: String
+        },
+        size: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Size'
+        },
+        price: {
             type: String,
             required: true,
-            unique: true,
+            default: 0,
         },
-        values: [
-            {
-                type: Schema.Types.ObjectId,
-                ref: "ValueAttribute",
-            },
-        ],
+        pricesale: {
+            type: String,
+        },
     },
     { timestamps: false, versionKey: false }
 );

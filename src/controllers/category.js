@@ -4,10 +4,7 @@ import Product from "../models/product";
 import slugify from "slugify";
 export const create = async (req, res) => {
     try {
-        const categoy = await Category.create({
-            name: req.body.name,
-            slug: slugify(req.body.name, "-"),
-        });
+        const categoy = await Category.create(req.body);
 
         return res.status(StatusCodes.CREATED).json(categoy);
     } catch (error) {
@@ -27,19 +24,13 @@ export const getAll = async (req, res) => {
     }
 };
 export const getCategoryById = async (req, res) => {
-    // GET /categories/65fef32d75398a9a92b694da
-    // { name: "Danh mục 1", products: []}
     try {
-        const products = await Product.find({ category: req.params.id });
         const category = await Category.findById(req.params.id);
         if (category.length === 0)
             return res
                 .status(StatusCodes.NOT_FOUND)
                 .json({ message: "Không tìm thấy sản phẩm nào!" });
-        return res.status(StatusCodes.OK).json({
-            category,
-            products,
-        });
+        return res.status(StatusCodes.OK).json(category);
     } catch (error) {
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
     }

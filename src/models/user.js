@@ -24,10 +24,10 @@ const userSchema = new Schema(
         },
         avatar: {
             type: String,
-            default: "../upload/default-avatar.jpeg",
+            default: "https://cdn-icons-png.freepik.com/512/6596/6596121.png",
         },
     },
     { timestamps: true, versionKey: false }
 );
 
-export default mongoose.model("User", userSchema);
+export default mongoose.model("UserAuths", userSchema);

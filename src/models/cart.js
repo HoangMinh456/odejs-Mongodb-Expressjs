@@ -9,9 +9,14 @@ const cartSchema = new Schema(
         },
         products: [
             {
-                productId: {
+                productItem: {
                     type: Schema.Types.ObjectId,
                     ref: "Product",
+                    required: true,
+                },
+                attributeItem: {
+                    type: Schema.Types.ObjectId,
+                    ref: "Attribute",
                     required: true,
                 },
                 quantity: {
@@ -24,4 +29,4 @@ const cartSchema = new Schema(
     { timestamps: true, versionKey: false }
 );
 
-export default mongoose.model("Cart", cartSchema);
+export default mongoose.model("CartModels", cartSchema);

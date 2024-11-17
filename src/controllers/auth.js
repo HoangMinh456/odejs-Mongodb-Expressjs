@@ -34,7 +34,6 @@ const signupSchema = Joi.object({
 export const signup = async (req, res) => {
     const { email, password, name, avatar } = req.body;
     const { error } = signupSchema.validate(req.body, { abortEarly: false });
-    console.log(error);
     if (error) {
         const messages = error.details.map((item) => item.message);
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
@@ -43,6 +42,7 @@ export const signup = async (req, res) => {
     }
 
     const existUser = await User.findOne({ email });
+    console.log(existUser)
     if (existUser) {
         return res.status(StatusCodes.BAD_REQUEST).json({
             messages: ["Email đã tồn tại"],
@@ -77,11 +77,19 @@ export const signin = async (req, res) => {
         });
     }
     const token = jwt.sign({ userId: user._id }, "123456", {
-        expiresIn: "7d",
+        expiresIn: "1m",
     });
     return res.status(StatusCodes.OK).json({
         user,
         token,
     });
 };
-export const logout = async (req, res) => {};
+export const getAllUser = async (req, res) => {
+    try {
+        const users = await User.find();
+        const newUser = users.filter(user => user.role !== 'admin');
+        return res.status(StatusCodes.OK).json(newUser);
+    } catch (error) {
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
+    }
+};

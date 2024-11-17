@@ -1,13 +1,11 @@
-import Attribute, { ValueAttributeModel } from "../models/attribute";
+import { StatusCodes } from "http-status-codes";
+import Attribute from "../models/attribute";
+import Product from "../models/product";
 // Controller để tạo mới một thuộc tính
 export const createAttribute = async (req, res) => {
     try {
-        const { name } = req.body;
-        const attribute = new Attribute({
-            name,
-        });
-        const newAttribute = await attribute.save();
-        res.status(201).json(newAttribute);
+        const attribute = await Attribute.create(req.body)
+        res.status(201).json(attribute._id);
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
@@ -16,7 +14,7 @@ export const createAttribute = async (req, res) => {
 // Controller để lấy tất cả các thuộc tính
 export const getAllAttributes = async (req, res) => {
     try {
-        const attributes = await Attribute.find().populate("values");
+        const attributes = await Attribute.find();
         res.json(attributes);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -26,7 +24,7 @@ export const getAllAttributes = async (req, res) => {
 // Controller để lấy một thuộc tính theo ID
 export const getAttributeById = async (req, res) => {
     try {
-        const attribute = await Attribute.findById(req.params.id).populate("values");
+        const attribute = await Attribute.findById(req.params.id).populate('size');
         if (!attribute) {
             return res.status(404).json({ message: "Attribute not found" });
         }
@@ -36,19 +34,36 @@ export const getAttributeById = async (req, res) => {
     }
 };
 
-// Controller để cập nhật một thuộc tính
-export const updateAttribute = async (req, res) => {
+// Controller để lấy một thuộc tính theo ID prduct
+export const getAttributeByIdPro = async (req, res) => {
     try {
-        const { name } = req.body;
-        const attribute = await Attribute.findById(req.params.id);
+        const attribute = await Product.findById(req.params.id).populate({
+            path: 'attribute',
+            populate: {
+                path: 'size',
+                model: 'Size'
+            }
+        });
         if (!attribute) {
             return res.status(404).json({ message: "Attribute not found" });
         }
-        attribute.name = name;
-        const updatedAttribute = await attribute.save();
-        res.json(updatedAttribute);
+        res.json(attribute.attribute);
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// Controller để cập nhật một thuộc tính
+export const updateAttribute = async (req, res) => {
+    try {
+        const attribute = await Attribute.findOneAndUpdate({ _id: req.params.id }, req.body, { new: true });
+        if (!attribute) {
+            return res.status(404).json({ message: "Attribute not found" });
+        }
+
+        return res.status(StatusCodes.OK).json(attribute);
+    } catch (error) {
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: error.message });
     }
 };
 
@@ -59,7 +74,7 @@ export const deleteAttribute = async (req, res) => {
         if (!attribute) {
             return res.status(404).json({ message: "Attribute not found" });
         }
-        await attribute.remove();
+        await Attribute.deleteOne({ _id: req.params.id });
         res.json({ message: "Attribute deleted" });
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -71,19 +86,7 @@ export const deleteAttribute = async (req, res) => {
 // Controller để tạo mới một giá trị của thuộc tính
 export const createValueAttribute = async (req, res) => {
     try {
-        const { name, price, quantity } = req.body;
-        const attribute = await Attribute.findById(req.params.id);
-        if (!attribute) {
-            return res.status(404).json({ message: "Attribute not found" });
-        }
-        const valueAttribute = new ValueAttributeModel({
-            name,
-            price,
-            quantity,
-        });
-        const newValueAttribute = await valueAttribute.save();
-        attribute.values.push(newValueAttribute);
-        await attribute.save();
+        const attribute = await Attribute.create(req.body);
         res.status(201).json(newValueAttribute);
     } catch (error) {
         res.status(400).json({ message: error.message });

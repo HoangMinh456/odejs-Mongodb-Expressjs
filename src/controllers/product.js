@@ -12,40 +12,37 @@ export const create = async (req, res) => {
 };
 
 export const getAllProducts = async (req, res) => {
-    const { _page = 1, _limit = 10, _sort = "createdAt", _order = "asc", _expand } = req.query;
-    const options = {
-        page: _page,
-        limit: _limit,
-        sort: { [_sort]: _order === "desc" ? -1 : 1 },
-    };
-    const populateOptions = _expand ? [{ path: "category", select: "name" }] : [];
     try {
-        const result = await Product.paginate(
-            { categoryId: null },
-            { ...options, populate: populateOptions }
-        );
-        if (result.docs.length === 0) throw new Error("No products found");
-        const response = {
-            data: result.docs,
-            pagination: {
-                currentPage: result.page,
-                totalPages: result.totalPages,
-                totalItems: result.totalDocs,
-            },
-        };
-        return res.status(200).json(response);
+        const products = await Product.find();
+        if (products.length === 0) {
+            return res.status(StatusCodes.NOT_FOUND).json({ error: "No orders found" });
+        }
+        return res.status(StatusCodes.OK).json(products);
     } catch (error) {
-        return res.status(400).json({ message: error.message });
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
+    }
+};
+
+export const get4NewProducts = async (req, res) => {
+    try {
+        const products = await Product.find().sort({ createdAt: -1 }).limit(4).populate('attribute');
+        if (products.length === 0) {
+            return res.status(StatusCodes.NOT_FOUND).json({ error: "No orders found" });
+        }
+        return res.status(StatusCodes.OK).json(products);
+    } catch (error) {
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
     }
 };
 
 export const getProductById = async (req, res) => {
     try {
-        const product = await Product.findById(req.params.id);
-        if (product.length === 0)
+        const product = await Product.findById(req.params.id).populate('attribute');
+        if (product.length === 0) {
             return res
                 .status(StatusCodes.NOT_FOUND)
                 .json({ message: "Không tìm thấy sản phẩm nào!" });
+        }
         return res.status(StatusCodes.OK).json(product);
     } catch (error) {
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error });
@@ -70,12 +67,32 @@ export const updateProductById = async (req, res) => {
 
 export const related = async (req, res) => {
     try {
-        const product = await Product.find({
-            category: req.params.categoryId,
-            _id: { $ne: req.params.productId },
-        });
-        return res.status(StatusCodes.OK).json(product);
-    } catch (error) {}
+        const { idPro, idAttribute } = req.params;
+
+        // Tìm sản phẩm theo idPro
+        const product = await Product.findOne({ _id: idPro }).populate('attribute');
+
+        if (!product) {
+            return res.status(StatusCodes.NOT_FOUND).json({ message: 'Product not found' });
+        }
+
+        // Tìm thuộc tính cụ thể theo idAttribute trong sản phẩm
+        const attribute = product.attribute.find(attr => attr._id.toString() === idAttribute);
+
+        if (!attribute) {
+            return res.status(StatusCodes.NOT_FOUND).json({ message: 'Attribute not found' });
+        }
+
+        const newPro = {
+            ...product.toObject(),
+            attribute: attribute
+        }
+
+        return res.status(StatusCodes.OK).json(newPro);
+    } catch (error) {
+        console.error(error);
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Internal Server Error' });
+    }
 };
 
 // iphone 13 product max => /product/iphone-13-product-max
